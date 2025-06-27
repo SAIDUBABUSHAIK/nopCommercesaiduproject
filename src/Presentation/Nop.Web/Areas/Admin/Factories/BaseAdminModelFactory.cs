@@ -3,6 +3,7 @@ using Nop.Core;
 using Nop.Core.Caching;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Discounts;
+using Nop.Core.Domain.FilterLevels;
 using Nop.Core.Domain.Gdpr;
 using Nop.Core.Domain.Orders;
 using Nop.Core.Domain.Payments;
@@ -44,6 +45,7 @@ public partial class BaseAdminModelFactory : IBaseAdminModelFactory
     protected readonly IDateRangeService _dateRangeService;
     protected readonly IDateTimeHelper _dateTimeHelper;
     protected readonly IEmailAccountService _emailAccountService;
+    protected readonly IFilterLevelValueService _filterLevelValueService;
     protected readonly ILanguageService _languageService;
     protected readonly ILocalizationService _localizationService;
     protected readonly IManufacturerService _manufacturerService;
@@ -74,6 +76,7 @@ public partial class BaseAdminModelFactory : IBaseAdminModelFactory
         IDateRangeService dateRangeService,
         IDateTimeHelper dateTimeHelper,
         IEmailAccountService emailAccountService,
+        IFilterLevelValueService filterLevelValueService,
         ILanguageService languageService,
         ILocalizationService localizationService,
         IManufacturerService manufacturerService,
@@ -100,6 +103,7 @@ public partial class BaseAdminModelFactory : IBaseAdminModelFactory
         _dateRangeService = dateRangeService;
         _dateTimeHelper = dateTimeHelper;
         _emailAccountService = emailAccountService;
+        _filterLevelValueService = filterLevelValueService;
         _languageService = languageService;
         _localizationService = localizationService;
         _manufacturerService = manufacturerService;
@@ -1004,6 +1008,46 @@ public partial class BaseAdminModelFactory : IBaseAdminModelFactory
 
         //insert special item for the default value
         await PrepareDefaultItemAsync(items, withSpecialDefaultItem, defaultItemText, defaultItemValue);
+    }
+
+    /// <summary>
+    /// Prepare available filter level values
+    /// </summary>
+    /// <param name="items">Plugin group items</param>
+    /// <param name="filterLevelValueEnum">Filter level value enum</param>
+    /// <param name="withSpecialDefaultItem">Whether to insert the first special item for the default value</param>
+    /// <param name="defaultItemText">Default item text; pass null to use default value of the default item text</param>
+    /// <returns>A task that represents the asynchronous operation</returns>
+    public virtual async Task PrepareFilterLevelValuesAsync(IList<SelectListItem> items, FilterLevelEnum filterLevelValueEnum, bool withSpecialDefaultItem = true, string defaultItemText = null)
+    {
+        ArgumentNullException.ThrowIfNull(items);
+
+        //prepare available filter level values
+        var availableFilterLevelValues = (await _filterLevelValueService.GetAllFilterLevelValuesAsync())
+            .Select(filterLevelValue =>
+            {
+                // filter by filter level value enum
+                switch(filterLevelValueEnum)
+                {
+                    case FilterLevelEnum.FilterLevel1:
+                        return filterLevelValue.FilterLevel1Value;
+                    case FilterLevelEnum.FilterLevel2:
+                        return filterLevelValue.FilterLevel2Value;
+                    case FilterLevelEnum.FilterLevel3:
+                        return filterLevelValue.FilterLevel3Value;
+                    default:
+                        return string.Empty;
+                }
+            })
+            .Distinct()
+            .OrderBy(levelValue => levelValue)
+            .ToList();
+            
+        foreach (var filterLevelValue in availableFilterLevelValues)
+            items.Add(new SelectListItem { Value = @filterLevelValue, Text = @filterLevelValue });
+
+        //insert special item for the default value
+        await PrepareDefaultItemAsync(items, withSpecialDefaultItem, defaultItemText);
     }
 
     #endregion

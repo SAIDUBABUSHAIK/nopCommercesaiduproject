@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Nop.Core.Domain.FilterLevels;
 
 namespace Nop.Web.Areas.Admin.Factories;
 
@@ -317,4 +318,14 @@ public partial interface IBaseAdminModelFactory
     /// <param name="defaultItemText">Default item text; pass null to use default value of the default item text</param>
     /// <returns>A task that represents the asynchronous operation</returns>
     Task PrepareSpecificationAttributeGroupsAsync(IList<SelectListItem> items, bool withSpecialDefaultItem = true, string defaultItemText = null);
+
+    /// <summary>
+    /// Prepare available filter level values
+    /// </summary>
+    /// <param name="items">Plugin group items</param>
+    /// <param name="filterLevelValueEnum">Filter level value enum</param>
+    /// <param name="withSpecialDefaultItem">Whether to insert the first special item for the default value</param>
+    /// <param name="defaultItemText">Default item text; pass null to use default value of the default item text</param>
+    /// <returns>A task that represents the asynchronous operation</returns>
+    Task PrepareFilterLevelValuesAsync(IList<SelectListItem> items, FilterLevelEnum filterLevelValueEnum, bool withSpecialDefaultItem = true, string defaultItemText = null);
 }

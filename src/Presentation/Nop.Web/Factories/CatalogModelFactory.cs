@@ -46,6 +46,7 @@ public partial class CatalogModelFactory : ICatalogModelFactory
     protected readonly ICurrencyService _currencyService;
     protected readonly ICustomerService _customerService;
     protected readonly IEventPublisher _eventPublisher;
+    protected readonly IFilterLevelValueService _filterLevelValueService;
     protected readonly IGenericAttributeService _genericAttributeService;
     protected readonly IHttpContextAccessor _httpContextAccessor;
     protected readonly IJsonLdModelFactory _jsonLdModelFactory;
@@ -85,6 +86,7 @@ public partial class CatalogModelFactory : ICatalogModelFactory
         ICurrencyService currencyService,
         ICustomerService customerService,
         IEventPublisher eventPublisher,
+        IFilterLevelValueService filterLevelValueService,
         IGenericAttributeService genericAttributeService,
         IHttpContextAccessor httpContextAccessor,
         IJsonLdModelFactory jsonLdModelFactory,
@@ -119,6 +121,7 @@ public partial class CatalogModelFactory : ICatalogModelFactory
         _currencyService = currencyService;
         _customerService = customerService;
         _eventPublisher = eventPublisher;
+        _filterLevelValueService = filterLevelValueService;
         _genericAttributeService = genericAttributeService;
         _httpContextAccessor = httpContextAccessor;
         _jsonLdModelFactory = jsonLdModelFactory;
@@ -1966,6 +1969,68 @@ public partial class CatalogModelFactory : ICatalogModelFactory
 
         var isFiltering = !string.IsNullOrEmpty(searchTerms);
         await PrepareCatalogProductsAsync(model, products, isFiltering);
+
+        return model;
+    }
+
+    /// <summary>
+    /// Prepares the search products by filter level values model
+    /// </summary>
+    /// <param name="searchModel">Search filter level values model</param>
+    /// <param name="command">Model to get the catalog products</param>
+    /// <returns>
+    /// A task that represents the asynchronous operation
+    /// The task result contains the search products model
+    /// </returns>
+    public virtual async Task<CatalogProductsModel> PrepareSearchProductsByFilterLevelValuesModelAsync(SearchFilterLevelValueModel searchModel, CatalogProductsCommand command)
+    {
+        ArgumentNullException.ThrowIfNull(command);
+
+        var model = new CatalogProductsModel
+        {
+            UseAjaxLoading = _catalogSettings.UseAjaxCatalogProductsLoading
+        };
+
+        //sorting
+        await PrepareSortingOptionsAsync(model, command);
+        //view mode
+        await PrepareViewModesAsync(model, command);
+        //page size
+        await PreparePageSizeOptionsAsync(model, command, _catalogSettings.SearchPageAllowCustomersToSelectPageSize,
+            _catalogSettings.SearchPagePageSizeOptions, _catalogSettings.SearchPageProductsPerPage);
+
+        var flv1 = searchModel.fl1id == "0" || string.IsNullOrEmpty(searchModel.fl1id)
+            ? string.Empty
+            : searchModel.fl1id;
+
+        var flv2 = searchModel.fl2id == "0" || string.IsNullOrEmpty(searchModel.fl2id)
+            ? string.Empty
+            : searchModel.fl2id;
+
+        var flv3 = searchModel.fl3id == "0" || string.IsNullOrEmpty(searchModel.fl3id)
+            ? string.Empty
+            : searchModel.fl3id;
+
+        IPagedList<Product> products = new PagedList<Product>(new List<Product>(), 0, 1);
+
+        var (filterLevel1Disabled, filterLevel2Disabled, filterLevel3Disabled) = await _filterLevelValueService.IsFilterLevelDisabledAsync();
+
+        if (!string.IsNullOrEmpty(flv1) && !filterLevel1Disabled)
+        {
+            var filterLevelValue = (await _filterLevelValueService.GetAllFilterLevelValuesAsync(flv1, flv2, flv3)).FirstOrDefault();
+            if (filterLevelValue == null)
+            {
+                return model;
+            }
+
+            //products
+            products = await _filterLevelValueService.GetProductsByFilterLevelValueIdAsync(filterLevelValue.Id,
+            pageIndex: command.PageNumber - 1,
+            pageSize: command.PageSize,
+            orderBy: (ProductSortingEnum)command.OrderBy);
+
+            await PrepareCatalogProductsAsync(model, products, true);
+        }
 
         return model;
     }

@@ -116,6 +116,11 @@ public partial class RouteProvider : BaseRouteProvider, IRouteProvider
             pattern: $"{lang}/search/",
             defaults: new { controller = "Catalog", action = "Search" });
 
+        //product search by filter level values
+        endpointRouteBuilder.MapControllerRoute(name: "ProductSearchByFilterLevelValues",
+            pattern: $"{lang}/search-ymm/",
+            defaults: new { controller = "Catalog", action = "SearchByFilterLevelValues" });
+
         //autocomplete search term (AJAX)
         endpointRouteBuilder.MapControllerRoute(name: "ProductSearchAutoComplete",
             pattern: $"catalog/searchtermautocomplete",
@@ -511,6 +516,11 @@ public partial class RouteProvider : BaseRouteProvider, IRouteProvider
             pattern: $"country/getstatesbycountryid/",
             defaults: new { controller = "Country", action = "GetStatesByCountryId" });
 
+        //get filter level value list by parent ID (AJAX)
+        endpointRouteBuilder.MapControllerRoute(name: "GetFilterLevelValues",
+            pattern: $"catalog/getfilterlevelvalues/",
+            defaults: new { controller = "Catalog", action = "GetFilterLevelValues" });
+
         //EU Cookie law accept button handler (AJAX)
         endpointRouteBuilder.MapControllerRoute(name: "EuCookieLawAccept",
             pattern: $"eucookielawaccept",
@@ -546,6 +556,10 @@ public partial class RouteProvider : BaseRouteProvider, IRouteProvider
         endpointRouteBuilder.MapControllerRoute(name: "SearchProducts",
             pattern: "product/search",
             defaults: new { controller = "Catalog", action = "SearchProducts" });
+
+        endpointRouteBuilder.MapControllerRoute(name: "SearchProductsByFilterLevelValues",
+            pattern: "product/searchbyflv",
+            defaults: new { controller = "Catalog", action = "SearchProductsByFilterLevelValues" });
 
         endpointRouteBuilder.MapControllerRoute(name: "GetVendorProducts",
             pattern: $"vendor/products",

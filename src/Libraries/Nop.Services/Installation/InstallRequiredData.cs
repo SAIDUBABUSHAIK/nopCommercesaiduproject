@@ -2501,6 +2501,11 @@ public partial class InstallationService
                     Name = "Add a new gift card"
                 },
                 new() {
+                    SystemKeyword = "AddNewFilterLevelValue",
+                    Enabled = true,
+                    Name = "Add a new filter level value"
+                },
+                new() {
                     SystemKeyword = "AddNewLanguage",
                     Enabled = true,
                     Name = "Add a new language"
@@ -2684,6 +2689,11 @@ public partial class InstallationService
                     SystemKeyword = "DeleteEmailAccount",
                     Enabled = true,
                     Name = "Delete an email account"
+                },
+                new () {
+                    SystemKeyword = "DeleteFilterLevelValue",
+                    Enabled = true,
+                    Name = "Delete a filter level value"
                 },
                 new() {
                     SystemKeyword = "DeleteGiftCard",
@@ -2906,6 +2916,11 @@ public partial class InstallationService
                     Name = "Edit an email account"
                 },
                 new() {
+                    SystemKeyword = "EditFilterLevelValue",
+                    Enabled = true,
+                    Name = "Edit a filter level value"
+                },
+                new() {
                     SystemKeyword = "EditGiftCard",
                     Enabled = true,
                     Name = "Edit a gift card"
@@ -3061,6 +3076,11 @@ public partial class InstallationService
                     Name = "Categories were imported"
                 },
                 new() {
+                    SystemKeyword = "ImportFilterLevelValues",
+                    Enabled = true,
+                    Name = "Import filter level values"
+                },
+                new() {
                     SystemKeyword = "ImportManufacturers",
                     Enabled = true,
                     Name = "Manufacturers were imported"
@@ -3094,6 +3114,11 @@ public partial class InstallationService
                     SystemKeyword = "ExportCategories",
                     Enabled = true,
                     Name = "Categories were exported"
+                },
+                new () {
+                    SystemKeyword = "ExportFilterLevelValues",
+                    Enabled = true,
+                    Name = "Export filter level values"
                 },
                 new() {
                     SystemKeyword = "ExportManufacturers",

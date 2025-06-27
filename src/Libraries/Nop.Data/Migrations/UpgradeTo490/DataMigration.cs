@@ -1,6 +1,8 @@
 ﻿using FluentMigrator;
+using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.Logging;
 using Nop.Core.Domain.Messages;
+using Nop.Core.Domain.Security;
 
 namespace Nop.Data.Migrations.UpgradeTo490;
 
@@ -148,6 +150,146 @@ public class DataMigration : Migration
                 IsActive = true,
                 EmailAccountId = eaGeneral.Id
             });
+        }
+
+        //#7411
+        var customerRoleTable = _dataProvider.GetTable<CustomerRole>().Where(x => x.IsSystemRole);
+        var permissionRoles = new [] {
+            customerRoleTable.FirstOrDefault(x => x.SystemName == NopCustomerDefaults.AdministratorsRoleName),
+            customerRoleTable.FirstOrDefault(x => x.SystemName == NopCustomerDefaults.VendorsRoleName)
+        };
+
+        if (!_dataProvider.GetTable<PermissionRecord>().Any(pr => string.Compare(pr.SystemName, "Catalog.FilterLevelValueView", StringComparison.InvariantCultureIgnoreCase) == 0))
+        {
+            var filterLevelValueViewPermission = _dataProvider.InsertEntity(
+                new PermissionRecord
+                {
+                    Name = "Admin area. Filter level values. View",
+                    SystemName = "Catalog.FilterLevelValueView",
+                    Category = "Catalog"
+                }
+            );
+
+            //add it to the Admin and Vendor roles by default
+            foreach (var role in permissionRoles)
+            {
+                _dataProvider.InsertEntity(
+                    new PermissionRecordCustomerRoleMapping
+                    {
+                        CustomerRoleId = role.Id,
+                        PermissionRecordId = filterLevelValueViewPermission.Id
+                    }
+                );
+            }
+        }
+
+        if (!_dataProvider.GetTable<PermissionRecord>().Any(pr => string.Compare(pr.SystemName, "Catalog.FilterLevelValueCreateEditDelete", StringComparison.InvariantCultureIgnoreCase) == 0))
+        {
+            var filterLevelValueCreateEditDeletePermission = _dataProvider.InsertEntity(
+                new PermissionRecord
+                {
+                    Name = "Admin area. Filter level values. Create, edit, delete",
+                    SystemName = "Catalog.FilterLevelValueCreateEditDelete",
+                    Category = "Catalog"
+                }
+            );
+
+            //add it to the Admin and Vendor roles by default
+            foreach (var role in permissionRoles)
+            {
+                _dataProvider.InsertEntity(
+                    new PermissionRecordCustomerRoleMapping
+                    {
+                        CustomerRoleId = role.Id,
+                        PermissionRecordId = filterLevelValueCreateEditDeletePermission.Id
+                    }
+                );
+            }
+        }
+
+        if (!_dataProvider.GetTable<PermissionRecord>().Any(pr => string.Compare(pr.SystemName, "Catalog.FilterLevelValueImportExport", StringComparison.InvariantCultureIgnoreCase) == 0))
+        {
+            var filterLevelValueImportExportPermission = _dataProvider.InsertEntity(
+                new PermissionRecord
+                {
+                    Name = "Admin area. Filter level values. Import and export",
+                    SystemName = "Catalog.FilterLevelValueImportExport",
+                    Category = "Catalog"
+                }
+            );
+
+            //add it to the Admin and Vendor roles by default
+            foreach (var role in permissionRoles)
+            {
+                _dataProvider.InsertEntity(
+                    new PermissionRecordCustomerRoleMapping
+                    {
+                        CustomerRoleId = role.Id,
+                        PermissionRecordId = filterLevelValueImportExportPermission.Id
+                    }
+                );
+            }
+        }
+
+        //ActivityLogTypes
+        if (!activityLogTypeTable.Any(alt => string.Compare(alt.SystemKeyword, "AddNewFilterLevelValue", StringComparison.InvariantCultureIgnoreCase) == 0))
+        {
+            _dataProvider.InsertEntity(
+                new ActivityLogType
+                {
+                    SystemKeyword = "AddNewFilterLevelValue",
+                    Enabled = true,
+                    Name = "Add a new filter level value"
+                }
+            );
+        }
+
+        if (!activityLogTypeTable.Any(alt => string.Compare(alt.SystemKeyword, "EditFilterLevelValue", StringComparison.InvariantCultureIgnoreCase) == 0))
+        {
+            _dataProvider.InsertEntity(
+                new ActivityLogType
+                {
+                    SystemKeyword = "EditFilterLevelValue",
+                    Enabled = true,
+                    Name = "Edit a filter level value"
+                }
+            );
+        }
+
+        if (!activityLogTypeTable.Any(alt => string.Compare(alt.SystemKeyword, "DeleteFilterLevelValue", StringComparison.InvariantCultureIgnoreCase) == 0))
+        {
+            _dataProvider.InsertEntity(
+                new ActivityLogType
+                {
+                    SystemKeyword = "DeleteFilterLevelValue",
+                    Enabled = true,
+                    Name = "Delete a filter level value"
+                }
+            );
+        }
+        
+        if (!activityLogTypeTable.Any(alt => string.Compare(alt.SystemKeyword, "ExportFilterLevelValues", StringComparison.InvariantCultureIgnoreCase) == 0))
+        {
+            _dataProvider.InsertEntity(
+                new ActivityLogType
+                {
+                    SystemKeyword = "ExportFilterLevelValues",
+                    Enabled = true,
+                    Name = "Export filter level values"
+                }
+            );
+        }
+
+        if (!activityLogTypeTable.Any(alt => string.Compare(alt.SystemKeyword, "ImportFilterLevelValues", StringComparison.InvariantCultureIgnoreCase) == 0))
+        {
+            _dataProvider.InsertEntity(
+                new ActivityLogType
+                {
+                    SystemKeyword = "ImportFilterLevelValues",
+                    Enabled = true,
+                    Name = "Import filter level values"
+                }
+            );
         }
     }
 

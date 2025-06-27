@@ -135,6 +135,14 @@ public partial class AdminMenu : IAdminMenu
                         },
                         new()
                         {
+                            SystemName = "Filter level values",
+                            Title = await _localizationService.GetResourceAsync("Admin.Catalog.FilterLevelValues"),
+                            PermissionNames = new List<string> { StandardPermission.Catalog.FILTER_LEVEL_VALUE_VIEW },
+                            Url = GetMenuItemUrl("FilterLevelValue", "List"),
+                            IconClass = "far fa-dot-circle"
+                        },
+                        new()
+                        {
                             SystemName = "Attributes",
                             Title = await _localizationService.GetResourceAsync("Admin.Catalog.Attributes"),
                             IconClass = "far fa-dot-circle",
@@ -485,6 +493,13 @@ public partial class AdminMenu : IAdminMenu
                                     SystemName = "Catalog settings",
                                     Title = await _localizationService.GetResourceAsync("Admin.Configuration.Settings.Catalog"),
                                     Url = GetMenuItemUrl("Setting", "Catalog"),
+                                    IconClass = "far fa-circle"
+                                },
+                                new()
+                                {
+                                    SystemName = "Filter (YMM) settings",
+                                    Title = await _localizationService.GetResourceAsync("Admin.Configuration.Settings.FilterLevel"),
+                                    Url = GetMenuItemUrl("Setting", "FilterLevel"),
                                     IconClass = "far fa-circle"
                                 },
                                 new()
